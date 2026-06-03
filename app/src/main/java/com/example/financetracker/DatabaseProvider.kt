@@ -32,6 +32,8 @@ object DatabaseProvider {
                 val dao = instance.categoryDao()
 
                 if (dao.getCount() == 0) {
+                    dao?.insert(Category(name="Другое", icon="\uD83D\uDCE6", isIncome = false))
+                    dao?.insert(Category(name="Прочие доходы", icon="\uD83D\uDCB0", isIncome = true))
                     dao?.insert(Category(name="Еда", icon="🍔", isIncome = false))
                     dao?.insert(Category(name="Транспорт", icon="🚕", isIncome = false))
                     dao?.insert(Category(name="Зарплата", icon="💼", isIncome = true))

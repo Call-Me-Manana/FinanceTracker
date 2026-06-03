@@ -37,6 +37,9 @@ class FinanceViewModel(
         isIncome: Boolean,
         categoryId: Int
     ) {
+        require(categoryId > 0) {
+            "Category must be selected"
+        }
         viewModelScope.launch {
             dao.insert(
                 Transaction(

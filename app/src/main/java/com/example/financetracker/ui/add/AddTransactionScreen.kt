@@ -1,7 +1,6 @@
 package com.example.financetracker.ui.add
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -10,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.ui.text.input.KeyboardType
 import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.data.Transaction
 import com.example.financetracker.CategoryViewModel
@@ -31,6 +29,17 @@ fun AddTransactionScreen(
     val isValid = title.isNotBlank()
     var amountError by remember { mutableStateOf(false) }
     val categories by categoryViewModel.categories.collectAsState()
+
+    LaunchedEffect(isIncome, categories) {
+
+        if (
+            selectedCategory == null ||
+            selectedCategory?.isIncome != isIncome
+        ) {
+
+            selectedCategory = categories.firstOrNull()
+        }
+    }
 
 
     Scaffold(
@@ -186,7 +195,7 @@ fun AddTransactionScreen(
                                     title = title,
                                     amount = amount.toDoubleOrNull() ?: 0.0,
                                     isIncome = isIncome,
-                                    categoryId = selectedCategory?.id ?: 0
+                                    categoryId = selectedCategory?.id!!
                                 )
                                 onBack()
                             } else {
@@ -195,7 +204,7 @@ fun AddTransactionScreen(
                                         title = title,
                                         amount = amount.toDoubleOrNull() ?: 0.0,
                                         isIncome = isIncome,
-                                        categoryId = selectedCategory?.id ?: 0
+                                        categoryId = selectedCategory?.id!!
                                     )
                                 )
                             }

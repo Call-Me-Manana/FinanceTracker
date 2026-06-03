@@ -47,6 +47,7 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.remote.creation.core)
@@ -71,6 +72,7 @@ dependencies {
     implementation("com.patrykandpatrick.vico:compose:2.0.0")
     implementation("com.patrykandpatrick.vico:compose-m3:2.0.0")
     implementation("com.patrykandpatrick.vico:core:2.0.0")
+    implementation("androidx.compose.material3:material3:1.2.0")
     val room_version = "2.8.4"
 
     implementation("androidx.room:room-runtime:$room_version")

@@ -22,6 +22,7 @@ fun FinanceAppNavigation(viewModel: FinanceViewModel, categoryViewModel: Categor
         composable("home") {
             FinanceHomeScreen(
                 viewModel = viewModel,
+                navController = navController,
                 onAddClick = { navController.navigate("add") }
             )
         }

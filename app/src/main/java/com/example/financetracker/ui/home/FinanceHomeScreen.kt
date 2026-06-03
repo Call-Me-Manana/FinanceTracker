@@ -18,38 +18,60 @@ import androidx.compose.runtime.collectAsState
 import com.example.financetracker.data.Transaction
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.Alignment
+import androidx.navigation.NavController
+import androidx.wear.compose.foundation.SwipeToDismissValue
 import com.example.financetracker.FinanceViewModel
+import com.example.financetracker.data.TransactionWithCategory
 import com.example.financetracker.ui.components.TransactionCard
 import com.example.financetracker.utils.groupTransactionsByDay
 import com.example.financetracker.utils.calculateDayTotal
 import java.text.DecimalFormat
+import androidx.compose.material3.*
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FinanceHomeScreen(
     viewModel: FinanceViewModel,
+    navController: NavController,
     onAddClick: () -> Unit
 ) {
     val transactions by viewModel.transactions.collectAsState()
+
     val grouped = groupTransactionsByDay(transactions)
-    val format = DecimalFormat("#,###.##")
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Finance Tracker") }
+                title = {
+                    Text(
+                        "Finance",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddClick) {
+            FloatingActionButton(
+                onClick = onAddClick,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
                 Text("+")
             }
         }
     ) { padding ->
-        LazyColumn (
-                modifier = Modifier.padding(padding),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
             grouped.forEach { (date, items) ->
 
                 val total = calculateDayTotal(items)
@@ -59,10 +81,20 @@ fun FinanceHomeScreen(
                         date = date,
                         total = total
                     ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
                             items.forEach { transaction ->
-                                TransactionCard(
-                                    item = transaction,
+                                SwipeTransactionRow(
+                                    transaction = transaction,
+
+                                    onDelete = {
+                                        viewModel.deleteTransaction(transaction.transaction)
+                                    },
+
+                                    onEdit = {
+                                        navController.navigate("edit_transaction/${transaction.transaction.id}")
+                                    },
                                     viewModel = viewModel
                                 )
                             }
@@ -80,17 +112,15 @@ fun DayCard(
     total: Double,
     content: @Composable () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        tonalElevation = 1.dp,
+        color = MaterialTheme.colorScheme.surface
     ) {
-
-        Column(modifier = Modifier.padding(12.dp)) {
-
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -99,25 +129,76 @@ fun DayCard(
 
                 Text(
                     text = date,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                     text = if (total >= 0)
-                        "+${"%.2f".format(total)} ₽"
+                        "+${"%.0f".format(total)} ₽"
                     else
-                        "${"%.2f".format(total)} ₽",
+                        "${"%.0f".format(total)} ₽",
+                    style = MaterialTheme.typography.titleMedium,
                     color = if (total >= 0)
-                        MaterialTheme.colorScheme.primary
+                        Color(0xFF2ECC71)
                     else
-                        MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.titleMedium
+                        MaterialTheme.colorScheme.error
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             content()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SwipeTransactionRow(
+    transaction: TransactionWithCategory,
+    viewModel: FinanceViewModel,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
+
+    val state = rememberSwipeToDismissBoxState()
+
+    SwipeToDismissBox(
+        state = state,
+
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Text("🗑 Delete")
+            }
+        }
+    ) {
+
+        TransactionCard(
+            item = transaction,
+            viewModel = viewModel
+        )
+    }
+
+
+    LaunchedEffect(state.currentValue) {
+
+        when (state.currentValue) {
+
+            SwipeToDismissBoxValue.EndToStart -> {
+                onDelete()
+            }
+
+            SwipeToDismissBoxValue.StartToEnd -> {
+                onEdit()
+            }
+
+            else -> {}
         }
     }
 }
