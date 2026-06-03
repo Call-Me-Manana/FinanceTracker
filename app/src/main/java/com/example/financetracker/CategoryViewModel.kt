@@ -28,6 +28,14 @@ class CategoryViewModel(
                 initialValue = emptyList()
             )
 
+    val categories =
+        dao.getAll()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
     fun addCategory(
         name: String,
         icon: String,

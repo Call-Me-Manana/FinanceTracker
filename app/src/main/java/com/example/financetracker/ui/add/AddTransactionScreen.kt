@@ -29,7 +29,7 @@ fun AddTransactionScreen(
     val isValid = title.isNotBlank()
     var amountError by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
-    val categories by categoryViewModel.expenseCategories.collectAsState()
+    val categories by categoryViewModel.categories.collectAsState()
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
 
 
@@ -145,12 +145,14 @@ fun AddTransactionScreen(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
-
+                    val filteredCategories = remember(categories, isIncome) {
+                        categories.filter { it.isIncome == isIncome }
+                    }
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        categories.forEach { category ->
+                        filteredCategories.forEach { category ->
 
                             FilterChip(
                                 selected = selectedCategory == category,

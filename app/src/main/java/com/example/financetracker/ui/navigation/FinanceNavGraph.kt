@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.financetracker.CategoryViewModel
 import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.ui.add.AddTransactionScreen
+import com.example.financetracker.ui.analytics.AnalyticsScreen
+import com.example.financetracker.ui.categories.CategoryScreen
 import com.example.financetracker.ui.dashboard.DashboardScreen
 
 @Composable
@@ -40,6 +42,14 @@ fun FinanceNavGraph(navController: NavHostController,
                     navController.popBackStack()
                 }
             )
+        }
+
+        composable(Routes.ANALYTICS) {
+            AnalyticsScreen(viewModel)
+        }
+
+        composable(Routes.CATEGORIES) {
+            CategoryScreen(viewModel)
         }
     }
 }

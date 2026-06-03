@@ -2,17 +2,30 @@ package com.example.financetracker
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.financetracker.data.Category
+import com.example.financetracker.data.CategoryDao
 import com.example.financetracker.data.Transaction
 import com.example.financetracker.data.TransactionDao
+import com.example.financetracker.repository.CategoryRepository
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class FinanceViewModel(
-    private val dao: TransactionDao
+    private val dao: TransactionDao,
+    private val categoryRepository: CategoryRepository,
 ) : ViewModel() {
-
+    val categories =
+        categoryRepository
+            .getAllCategories()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
     val transactions =
         dao.getAllWithCategory()
             .stateIn(
@@ -55,4 +68,12 @@ class FinanceViewModel(
     val totalExpense = transactions.map { list ->
         list.filter { !it.transaction.isIncome }.sumOf { it.transaction.amount }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    fun addCategory(
+        category: Category
+    ) {
+        viewModelScope.launch {
+            categoryRepository.insertCategory(category)
+        }
+    }
 }

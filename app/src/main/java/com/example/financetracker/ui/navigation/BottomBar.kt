@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Category
 import androidx.navigation.NavController
 
 data class BottomItem(
@@ -21,7 +23,9 @@ fun FinanceBottomBar(
 ) {
     val items = listOf(
         BottomItem(Routes.DASHBOARD, Icons.Default.Home, "Главная"),
-        BottomItem(Routes.ADD, Icons.Default.Add, "Добавить")
+        BottomItem(Routes.ADD, Icons.Default.Add, "Добавить"),
+        BottomItem(Routes.ANALYTICS, Icons.Default.Analytics, "Аналитика"),
+        BottomItem(Routes.CATEGORIES, Icons.Default.Category, "Категории")
     )
 
     NavigationBar {

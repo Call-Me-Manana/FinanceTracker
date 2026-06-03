@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.financetracker.repository.CategoryRepository
 import com.example.financetracker.ui.dashboard.DashboardScreen
 import com.example.financetracker.ui.navigation.FinanceBottomBar
 import com.example.financetracker.ui.navigation.FinanceNavGraph
@@ -39,9 +40,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val database = DatabaseProvider.getDatabase(this)
-
+        val categoryRepository = CategoryRepository(
+            database.categoryDao()
+        )
         val viewModel = FinanceViewModel(
-            database.transactionDao()
+            database.transactionDao(),
+            categoryRepository
         )
 
         val categoryViewModel = CategoryViewModel(

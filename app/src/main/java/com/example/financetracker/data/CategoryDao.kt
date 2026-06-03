@@ -19,6 +19,13 @@ interface CategoryDao {
     """)
     fun getAll(isIncome: Boolean): Flow<List<Category>>
 
+    @Query("""
+    SELECT *
+    FROM categories
+    ORDER BY name
+""")
+    fun getAll(): Flow<List<Category>>
+
     @Query("DELETE FROM categories WHERE id = :id")
     suspend fun delete(id: Int)
 
