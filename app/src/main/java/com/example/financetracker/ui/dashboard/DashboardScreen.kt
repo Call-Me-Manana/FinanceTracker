@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.ui.components.TransactionCard
 import com.example.financetracker.ui.home.DayCard
@@ -29,7 +30,8 @@ import kotlin.collections.component2
 @Composable
 fun DashboardScreen(
     viewModel: FinanceViewModel,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    navController: NavController
 ) {
     val transactions by viewModel.transactions.collectAsState()
     val balance by viewModel.balance.collectAsState()
@@ -82,7 +84,10 @@ fun DashboardScreen(
                             items.forEach { transaction ->
                                 TransactionCard(
                                     item = transaction,
-                                    viewModel = viewModel
+                                    viewModel = viewModel,
+                                    onEdit = {
+                                        navController.navigate("edit_transaction/${transaction.transaction.id}")
+                                    }
                                 )
                             }
                         }

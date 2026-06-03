@@ -21,22 +21,22 @@ import com.example.financetracker.data.Category
 fun AddTransactionScreen(
     viewModel: FinanceViewModel,
     categoryViewModel: CategoryViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    transactionToEdit: Transaction? = null
 ) {
-    var title by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") }
-    var isIncome by remember { mutableStateOf(true) }
+    var title by remember { mutableStateOf(transactionToEdit?.title ?: "") }
+    var amount by remember { mutableStateOf(transactionToEdit?.amount?.toString() ?: "") }
+    var isIncome by remember { mutableStateOf(transactionToEdit?.isIncome ?: true) }
+    var selectedCategory by remember { mutableStateOf<Category?>(null) }
     val isValid = title.isNotBlank()
     var amountError by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
     val categories by categoryViewModel.categories.collectAsState()
-    var selectedCategory by remember { mutableStateOf<Category?>(null) }
 
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Добавить") },
+                title = { Text(if (transactionToEdit == null) "Добавить" else "Сохранить") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -181,19 +181,33 @@ fun AddTransactionScreen(
                     Button(
                         enabled = isValid,
                         onClick = {
-                            viewModel.addTransaction(
-                                title = title,
-                                amount = amount.toDoubleOrNull() ?: 0.0,
-                                isIncome = isIncome,
-                                categoryId = selectedCategory?.id ?: 0
-                            )
+                            if (transactionToEdit == null) {
+                                viewModel.addTransaction(
+                                    title = title,
+                                    amount = amount.toDoubleOrNull() ?: 0.0,
+                                    isIncome = isIncome,
+                                    categoryId = selectedCategory?.id ?: 0
+                                )
+                                onBack()
+                            } else {
+                                viewModel.updateTransaction(
+                                    transactionToEdit.copy(
+                                        title = title,
+                                        amount = amount.toDoubleOrNull() ?: 0.0,
+                                        isIncome = isIncome,
+                                        categoryId = selectedCategory?.id ?: 0
+                                    )
+                                )
+                            }
                             onBack()
                         }
+
                     ) {
-                        Text("Сохранить")
+                        Text(if (transactionToEdit == null) "Добавить" else "Сохранить")
                     }
                 }
             }
         }
     }
+
 }

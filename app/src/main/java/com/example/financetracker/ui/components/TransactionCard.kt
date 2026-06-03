@@ -1,5 +1,6 @@
 package com.example.financetracker.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Card
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -37,7 +39,8 @@ import com.example.financetracker.utils.formatDate
 @Composable
 fun TransactionCard(
     item: TransactionWithCategory,
-    viewModel: FinanceViewModel
+    viewModel: FinanceViewModel,
+    onEdit: () -> Unit = {}
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     val category = item.category
@@ -110,12 +113,20 @@ fun TransactionCard(
                         MaterialTheme.colorScheme.error
                 )
 
+
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit"
+                    )
+                }
                 IconButton(onClick = { showDeleteDialog = true }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }
             }
         }
     }
+
 
     if (showDeleteDialog) {
         AlertDialog(
