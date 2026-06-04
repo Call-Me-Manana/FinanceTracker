@@ -2,12 +2,14 @@ package com.example.financetracker.ui.categories
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,6 +29,13 @@ fun AddCategoryDialog(
     var icon by remember { mutableStateOf("📁") }
 
     var isIncome by remember { mutableStateOf(false) }
+
+    val emojis = listOf(
+        "🍔", "🍕", "☕", "🛒", "🚕", "⛽",
+        "🏠", "💡", "📱", "💻", "🎮", "🎬",
+        "⚽", "🏋️", "✈️", "🎁", "💰", "💳",
+        "🏥", "📚", "👕", "🐶", "🚗", "🚌"
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -53,15 +62,29 @@ fun AddCategoryDialog(
                     modifier = Modifier.height(12.dp)
                 )
 
-                OutlinedTextField(
-                    value = icon,
-                    onValueChange = {
-                        icon = it
-                    },
-                    label = {
-                        Text("Иконка")
-                    }
+                Text(
+                    text = "Иконка",
+                    style = MaterialTheme.typography.titleSmall
                 )
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    emojis.forEach { emoji ->
+
+                        FilterChip(
+                            selected = icon == emoji,
+                            onClick = {
+                                icon = emoji
+                            },
+                            label = {
+                                Text(emoji)
+                            }
+                        )
+                    }
+                }
 
                 Spacer(
                     modifier = Modifier.height(16.dp)

@@ -31,7 +31,7 @@ class FinanceViewModel(
                 initialValue = emptyList()
             )
 
-    fun addTransaction(
+    suspend fun addTransaction(
         title: String,
         amount: Double,
         isIncome: Boolean,

@@ -110,23 +110,6 @@ fun AnalyticsScreen(
             }
         }
 
-        // Список категорий
-        items(categoryList) { category ->
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 8.dp
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                Text(category.category)
-
-                Text("${category.amount.toInt()} ₽")
-            }
-        }
     }
 }

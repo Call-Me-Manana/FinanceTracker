@@ -13,6 +13,7 @@ import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.data.Transaction
 import com.example.financetracker.CategoryViewModel
 import com.example.financetracker.data.Category
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -186,29 +187,30 @@ fun AddTransactionScreen(
                             )
                         }
                     }
-
+                    val scope = rememberCoroutineScope()
                     Button(
                         enabled = isValid,
                         onClick = {
-                            if (transactionToEdit == null) {
-                                viewModel.addTransaction(
-                                    title = title,
-                                    amount = amount.toDoubleOrNull() ?: 0.0,
-                                    isIncome = isIncome,
-                                    categoryId = selectedCategory?.id!!
-                                )
-                                onBack()
-                            } else {
-                                viewModel.updateTransaction(
-                                    transactionToEdit.copy(
+                            scope.launch {
+                                if (transactionToEdit == null) {
+                                    viewModel.addTransaction(
                                         title = title,
                                         amount = amount.toDoubleOrNull() ?: 0.0,
                                         isIncome = isIncome,
                                         categoryId = selectedCategory?.id!!
                                     )
-                                )
+                                } else {
+                                    viewModel.updateTransaction(
+                                        transactionToEdit.copy(
+                                            title = title,
+                                            amount = amount.toDoubleOrNull() ?: 0.0,
+                                            isIncome = isIncome,
+                                            categoryId = selectedCategory?.id!!
+                                        )
+                                    )
+                                }
+                                onBack()
                             }
-                            onBack()
                         }
 
                     ) {

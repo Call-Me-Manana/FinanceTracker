@@ -35,7 +35,7 @@ fun FinanceAppNavigation(viewModel: FinanceViewModel, categoryViewModel: Categor
             )
         }
 
-        composable("add") {
+        composable("addCategory") {
             CategoryScreen(
                 viewModel = viewModel
             )
