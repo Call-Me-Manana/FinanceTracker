@@ -9,12 +9,37 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+
+    primary = Color(0xFF5B8DEF),
+    onPrimary = Color.White,
+
+    secondary = Color(0xFF7C8BA1),
+    onSecondary = Color.White,
+
+    background = Color(0xFF111827),
+    onBackground = Color(0xFFF3F4F6),
+
+    surface = Color(0xFF1A2233),
+    onSurface = Color(0xFFF3F4F6),
+
+    surfaceVariant = Color(0xFF253047),
+    onSurfaceVariant = Color(0xFFB8C1CC),
+
+    primaryContainer = Color(0xFF2B3D63),
+    onPrimaryContainer = Color.White,
+
+    secondaryContainer = Color(0xFF374151),
+    onSecondaryContainer = Color.White,
+
+    error = Color(0xFFD96C6C),
+    onError = Color.White,
+
+    errorContainer = Color(0xFF5B2C2C),
+    onErrorContainer = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -35,9 +60,8 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun FinanceTrackerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

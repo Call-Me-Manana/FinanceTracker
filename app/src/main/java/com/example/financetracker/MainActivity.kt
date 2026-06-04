@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.Alignment
 import androidx.navigation.compose.NavHost
@@ -33,9 +34,12 @@ import com.example.financetracker.repository.CategoryRepository
 import com.example.financetracker.ui.dashboard.DashboardScreen
 import com.example.financetracker.ui.navigation.FinanceBottomBar
 import com.example.financetracker.ui.navigation.FinanceNavGraph
+import com.example.financetracker.ui.theme.FinanceTrackerTheme
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -52,25 +56,94 @@ class MainActivity : ComponentActivity() {
             database.categoryDao()
         )
 
+
         setContent {
-            val navController = rememberNavController()
-
-            Scaffold(
-                bottomBar = {
-                    val backStackEntry by navController.currentBackStackEntryAsState()
-                    val currentRoute = backStackEntry?.destination?.route
-
-                    FinanceBottomBar(navController, currentRoute)
-                }
-            ) { padding ->
-
-                FinanceNavGraph(
-                    navController = navController,
-                    viewModel = viewModel,
-                    categoryViewModel = categoryViewModel,
-                    modifier = Modifier.padding(padding)
+            FinanceTrackerTheme {
+                val navController = rememberNavController()
+                val drawerState = rememberDrawerState(
+                    initialValue = DrawerValue.Closed
                 )
+
+                val scope = rememberCoroutineScope()
+                fun navigateFromDrawer(route: String) {
+                    scope.launch {
+                        drawerState.close()
+                        navController.navigate(route)
+                    }
+                }
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet {
+                            Text(
+                                "Finance Tracker",
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+
+                            NavigationDrawerItem(
+                                label = { Text("Категории") },
+                                selected = false,
+                                onClick = { navigateFromDrawer("categories") }
+                            )
+
+                            NavigationDrawerItem(
+                                label = { Text("Цели") },
+                                selected = false,
+                                onClick = { navigateFromDrawer("goals") }
+                            )
+
+                            NavigationDrawerItem(
+                                label = { Text("Настройки") },
+                                selected = false,
+                                onClick = { navigateFromDrawer("settings") }
+                            )
+                        }
+                    }
+                ) {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = {
+                                    Text("Finance Tracker")
+                                },
+
+                                navigationIcon = {
+
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                drawerState.open()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Menu,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            )
+                        },
+                        bottomBar = {
+                            val backStackEntry by navController.currentBackStackEntryAsState()
+                            val currentRoute = backStackEntry?.destination?.route
+
+                            FinanceBottomBar(navController, currentRoute)
+                        }
+
+                    ) { padding ->
+
+                        FinanceNavGraph(
+                            navController = navController,
+                            viewModel = viewModel,
+                            categoryViewModel = categoryViewModel,
+                            modifier = Modifier.padding(padding)
+                        )
+                    }
+                }
             }
+
         }
     }
 }
