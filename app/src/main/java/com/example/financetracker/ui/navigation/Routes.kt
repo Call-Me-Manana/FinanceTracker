@@ -5,4 +5,5 @@ object Routes {
     const val ADD = "add"
     const val ANALYTICS = "analytics"
     const val CATEGORIES = "categories"
+    const val GOALS = "goals"
 }

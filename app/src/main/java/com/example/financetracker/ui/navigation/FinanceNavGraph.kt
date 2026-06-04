@@ -20,6 +20,7 @@ import com.example.financetracker.ui.add.AddTransactionScreen
 import com.example.financetracker.ui.analytics.AnalyticsScreen
 import com.example.financetracker.ui.categories.CategoryScreen
 import com.example.financetracker.ui.dashboard.DashboardScreen
+import com.example.financetracker.ui.goals.GoalsScreen
 
 @Composable
 fun FinanceNavGraph(navController: NavHostController,
@@ -33,18 +34,18 @@ fun FinanceNavGraph(navController: NavHostController,
         modifier = modifier
     ) {
 
-        composable(Routes.DASHBOARD) {
-            DashboardScreen(
-                viewModel = viewModel,
-                navController = navController
-            )
-        }
-
         composable(Routes.ADD) {
             AddTransactionScreen(
                 viewModel = viewModel,
                 categoryViewModel = categoryViewModel,
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.DASHBOARD) {
+            DashboardScreen(
+                viewModel = viewModel,
+                navController = navController
             )
         }
 
@@ -54,6 +55,10 @@ fun FinanceNavGraph(navController: NavHostController,
 
         composable(Routes.CATEGORIES) {
             CategoryScreen(viewModel)
+        }
+
+        composable(Routes.GOALS) {
+            GoalsScreen(viewModel)
         }
 
         composable("edit_transaction/{id}") { backStackEntry ->

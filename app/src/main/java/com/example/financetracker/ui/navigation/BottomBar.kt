@@ -7,7 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
-import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Flag
 import androidx.navigation.NavController
 
 data class BottomItem(
@@ -25,7 +25,8 @@ fun FinanceBottomBar(
 
         BottomItem(Routes.ADD, Icons.Default.Add, "Добавить"),
         BottomItem(Routes.DASHBOARD, Icons.Default.Home, "Главная"),
-        BottomItem(Routes.ANALYTICS, Icons.Default.Analytics, "Аналитика")
+        BottomItem(Routes.ANALYTICS, Icons.Default.Analytics, "Аналитика"),
+        BottomItem(Routes.GOALS, Icons.Default.Flag, "Цели")
     )
 
     NavigationBar {

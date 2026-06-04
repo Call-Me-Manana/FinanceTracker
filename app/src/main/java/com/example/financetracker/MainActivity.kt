@@ -31,9 +31,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.financetracker.repository.CategoryRepository
+import com.example.financetracker.repository.GoalRepository
 import com.example.financetracker.ui.dashboard.DashboardScreen
 import com.example.financetracker.ui.navigation.FinanceBottomBar
 import com.example.financetracker.ui.navigation.FinanceNavGraph
+import com.example.financetracker.ui.navigation.Routes
 import com.example.financetracker.ui.theme.FinanceTrackerTheme
 import kotlinx.coroutines.launch
 
@@ -47,8 +49,12 @@ class MainActivity : ComponentActivity() {
         val categoryRepository = CategoryRepository(
             database.categoryDao()
         )
+        val goalRepository = GoalRepository(
+            database.goalDao()
+        )
         val viewModel = FinanceViewModel(
             database.transactionDao(),
+            goalRepository,
             categoryRepository
         )
 
@@ -90,7 +96,7 @@ class MainActivity : ComponentActivity() {
                             NavigationDrawerItem(
                                 label = { Text("Цели") },
                                 selected = false,
-                                onClick = { navigateFromDrawer("goals") }
+                                onClick = { navigateFromDrawer(Routes.GOALS) }
                             )
 
                             NavigationDrawerItem(
@@ -147,4 +153,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
