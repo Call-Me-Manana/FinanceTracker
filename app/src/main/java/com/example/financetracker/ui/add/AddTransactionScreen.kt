@@ -44,7 +44,17 @@ fun AddTransactionScreen(
 
 
     Scaffold(
-
+        topBar = {
+            TopAppBar(
+                title = { Text("") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                },
+                windowInsets = WindowInsets(0, 0, 0, 0)
+            )
+        }
     ) { padding ->
 
         Surface(

@@ -49,6 +49,8 @@ fun ExpensesDonutChart(
         Color(0xFF00BCD4)
     )
 
+    val holeColor = MaterialTheme.colorScheme.surface
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -62,11 +64,40 @@ fun ExpensesDonutChart(
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
 
-                        val index = (offset.x / size.width * safe.size)
-                            .toInt()
-                            .coerceIn(0, safe.lastIndex)
+                        val center = Offset(size.width / 2f, size.height / 2f)
 
-                        selectedIndex = index
+                        val dx = offset.x - center.x
+                        val dy = offset.y - center.y
+
+                        val distance = kotlin.math.sqrt(dx * dx + dy * dy)
+
+                        val radius = min(size.width, size.height) / 2f
+                        val innerRadius = radius * 0.62f
+
+                        if (distance < innerRadius || distance > radius) return@detectTapGestures
+
+                        var angle = Math.toDegrees(
+                            kotlin.math.atan2(dy.toDouble(), dx.toDouble())
+                        ).toFloat()
+
+                        if (angle < 0) angle += 360f
+
+                        // приводим к старту -90°
+                        angle = (angle + 90f) % 360f
+
+                        var startAngle = 0f
+
+                        safe.forEachIndexed { index, item ->
+
+                            val sweep = (item.amount.toFloat() / total) * 360f
+
+                            if (angle in startAngle..(startAngle + sweep)) {
+                                selectedIndex = index
+                                return@detectTapGestures
+                            }
+
+                            startAngle += sweep
+                        }
                     }
                 }
         ) {
@@ -125,7 +156,7 @@ fun ExpensesDonutChart(
 
                 // donut hole
                 drawCircle(
-                    color = Color.White,
+                    color = holeColor,
                     radius = innerRadius,
                     center = center
                 )
@@ -207,7 +238,7 @@ fun ExpensesDonutChart(
                     Text(
                         text = "${item.amount.toInt()} ₽",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
