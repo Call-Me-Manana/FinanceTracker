@@ -22,8 +22,6 @@ fun FinanceBottomBar(
     currentRoute: String?
 ) {
     val bottomBarItems = listOf(
-
-        BottomItem(Routes.ADD, Icons.Default.Add, "Добавить"),
         BottomItem(Routes.DASHBOARD, Icons.Default.Home, "Главная"),
         BottomItem(Routes.ANALYTICS, Icons.Default.Analytics, "Аналитика"),
         BottomItem(Routes.GOALS, Icons.Default.Flag, "Цели")

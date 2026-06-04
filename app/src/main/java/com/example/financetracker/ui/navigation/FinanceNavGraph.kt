@@ -16,7 +16,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.financetracker.CategoryViewModel
 import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.data.Transaction
-import com.example.financetracker.ui.add.AddTransactionScreen
 import com.example.financetracker.ui.analytics.AnalyticsScreen
 import com.example.financetracker.ui.categories.CategoryScreen
 import com.example.financetracker.ui.dashboard.DashboardScreen
@@ -34,17 +33,10 @@ fun FinanceNavGraph(navController: NavHostController,
         modifier = modifier
     ) {
 
-        composable(Routes.ADD) {
-            AddTransactionScreen(
-                viewModel = viewModel,
-                categoryViewModel = categoryViewModel,
-                onBack = { navController.popBackStack() }
-            )
-        }
-
         composable(Routes.DASHBOARD) {
             DashboardScreen(
                 viewModel = viewModel,
+                categoryViewModel = categoryViewModel,
                 navController = navController
             )
         }
@@ -60,50 +52,5 @@ fun FinanceNavGraph(navController: NavHostController,
         composable(Routes.GOALS) {
             GoalsScreen(viewModel)
         }
-
-        composable("edit_transaction/{id}") { backStackEntry ->
-
-            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
-
-            EditTransactionRoute(
-                transactionId = id,
-                viewModel = viewModel,
-                categoryViewModel = categoryViewModel,
-                onBack = {  navController.navigate(Routes.DASHBOARD) }
-            )
-        }
-    }
-}
-
-@Composable
-fun EditTransactionRoute(
-    transactionId: Int,
-    viewModel: FinanceViewModel,
-    categoryViewModel: CategoryViewModel,
-    onBack: () -> Unit
-) {
-    val transaction = remember { mutableStateOf<Transaction?>(null) }
-
-    LaunchedEffect(transactionId) {
-        transaction.value = viewModel.getTransaction(transactionId)
-    }
-
-    if (transaction.value == null) {
-
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-
-    } else {
-
-        AddTransactionScreen(
-            viewModel = viewModel,
-            categoryViewModel = categoryViewModel,
-            onBack = onBack,
-            transactionToEdit = transaction.value
-        )
     }
 }

@@ -162,7 +162,23 @@ fun SwipeTransactionRow(
     onEdit: () -> Unit
 ) {
 
-    val state = rememberSwipeToDismissBoxState()
+    val state = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            when (value) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onDelete()
+                    false
+                }
+
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    onEdit()
+                    false
+                }
+
+                SwipeToDismissBoxValue.Settled -> true
+            }
+        }
+    )
 
     SwipeToDismissBox(
         state = state,
@@ -181,24 +197,10 @@ fun SwipeTransactionRow(
 
         TransactionCard(
             item = transaction,
-            viewModel = viewModel
+            viewModel = viewModel,
+            onEdit = onEdit
         )
     }
 
 
-    LaunchedEffect(state.currentValue) {
-
-        when (state.currentValue) {
-
-            SwipeToDismissBoxValue.EndToStart -> {
-                onDelete()
-            }
-
-            SwipeToDismissBoxValue.StartToEnd -> {
-                onEdit()
-            }
-
-            else -> {}
-        }
-    }
 }

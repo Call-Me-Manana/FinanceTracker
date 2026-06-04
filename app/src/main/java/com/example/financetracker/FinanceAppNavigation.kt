@@ -4,8 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.financetracker.data.TransactionDao
-import com.example.financetracker.ui.add.AddTransactionScreen
 import com.example.financetracker.ui.categories.CategoryScreen
 import com.example.financetracker.ui.home.FinanceHomeScreen
 
@@ -24,14 +22,6 @@ fun FinanceAppNavigation(viewModel: FinanceViewModel, categoryViewModel: Categor
                 viewModel = viewModel,
                 navController = navController,
                 onAddClick = { navController.navigate("add") }
-            )
-        }
-
-        composable("add") {
-            AddTransactionScreen(
-                viewModel = viewModel,
-                categoryViewModel = categoryViewModel,
-                onBack = { navController.popBackStack() }
             )
         }
 
