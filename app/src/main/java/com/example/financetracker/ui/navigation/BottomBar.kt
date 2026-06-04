@@ -21,22 +21,21 @@ fun FinanceBottomBar(
     navController: NavController,
     currentRoute: String?
 ) {
-    val items = listOf(
-        BottomItem(Routes.DASHBOARD, Icons.Default.Home, "Главная"),
+    val bottomBarItems = listOf(
+
         BottomItem(Routes.ADD, Icons.Default.Add, "Добавить"),
-        BottomItem(Routes.ANALYTICS, Icons.Default.Analytics, "Аналитика"),
-        BottomItem(Routes.CATEGORIES, Icons.Default.Category, "Категории")
+        BottomItem(Routes.DASHBOARD, Icons.Default.Home, "Главная"),
+        BottomItem(Routes.ANALYTICS, Icons.Default.Analytics, "Аналитика")
     )
 
     NavigationBar {
 
-        items.forEach { item ->
+        bottomBarItems.forEach { item ->
 
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        popUpTo(Routes.DASHBOARD)
                         launchSingleTop = true
                     }
                 },

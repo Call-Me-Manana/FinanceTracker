@@ -1,9 +1,13 @@
 package com.example.financetracker.ui.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,9 +36,6 @@ fun FinanceNavGraph(navController: NavHostController,
         composable(Routes.DASHBOARD) {
             DashboardScreen(
                 viewModel = viewModel,
-                onAddClick = {
-                    navController.navigate(Routes.ADD)
-                },
                 navController = navController
             )
         }
@@ -43,9 +44,7 @@ fun FinanceNavGraph(navController: NavHostController,
             AddTransactionScreen(
                 viewModel = viewModel,
                 categoryViewModel = categoryViewModel,
-                onBack = {
-                    navController.popBackStack()
-                }
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -59,13 +58,13 @@ fun FinanceNavGraph(navController: NavHostController,
 
         composable("edit_transaction/{id}") { backStackEntry ->
 
-            val id = backStackEntry.arguments?.getString("id")?.toInt() ?: return@composable
+            val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
 
             EditTransactionRoute(
                 transactionId = id,
                 viewModel = viewModel,
                 categoryViewModel = categoryViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = {  navController.navigate(Routes.DASHBOARD) }
             )
         }
     }
@@ -84,12 +83,22 @@ fun EditTransactionRoute(
         transaction.value = viewModel.getTransaction(transactionId)
     }
 
-    transaction.value?.let {
+    if (transaction.value == null) {
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+
+    } else {
+
         AddTransactionScreen(
             viewModel = viewModel,
             categoryViewModel = categoryViewModel,
             onBack = onBack,
-            transactionToEdit = it
+            transactionToEdit = transaction.value
         )
     }
 }

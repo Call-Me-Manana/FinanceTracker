@@ -32,7 +32,6 @@ import kotlin.collections.component2
 @Composable
 fun DashboardScreen(
     viewModel: FinanceViewModel,
-    onAddClick: () -> Unit,
     navController: NavController
 ) {
     val transactions by viewModel.transactions.collectAsState()

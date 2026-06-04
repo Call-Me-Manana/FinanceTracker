@@ -44,16 +44,7 @@ fun AddTransactionScreen(
 
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (transactionToEdit == null) "Добавить" else "Сохранить") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                }
-            )
-        }
+
     ) { padding ->
 
         Surface(
