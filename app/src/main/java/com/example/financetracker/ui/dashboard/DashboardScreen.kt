@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -120,6 +121,7 @@ fun DashboardScreen(
 
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -141,7 +143,9 @@ fun DashboardScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(
+                        16.dp
+                    ),
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.primaryContainer
             ) {
@@ -177,13 +181,11 @@ fun DashboardScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(
-                    space = 8.dp,
-                    alignment = Alignment.CenterHorizontally
-                )
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 DashboardPeriod.entries.forEach { period ->
                     FilterChip(
+                        modifier = Modifier.weight(1f),
                         selected = selectedPeriod == period,
                         onClick = {
                             selectedPeriod = period
@@ -221,28 +223,36 @@ fun DashboardScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            LazyColumn(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                grouped.forEach { (date, items) ->
-                    val total = calculateDayTotal(items)
+            if (filteredTransactions.isEmpty()) {
+                EmptyTransactionsState(
+                    hasTransactions = transactions.isNotEmpty(),
+                    searchQuery = searchQuery,
+                    selectedPeriod = selectedPeriod
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    grouped.forEach { (date, items) ->
+                        val total = calculateDayTotal(items)
 
-                    item {
-                        DayCard(date = date, total = total) {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                items.forEach { transaction ->
-                                    SwipeTransactionRow(
-                                        transaction = transaction,
-                                        viewModel = viewModel,
-                                        onDelete = {
-                                            viewModel.deleteTransaction(transaction.transaction)
-                                        },
-                                        onEdit = {
-                                            transactionToEdit = transaction.transaction
-                                            showTransactionDialog = true
-                                        }
-                                    )
+                        item {
+                            DayCard(date = date, total = total) {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    items.forEach { transaction ->
+                                        SwipeTransactionRow(
+                                            transaction = transaction,
+                                            viewModel = viewModel,
+                                            onDelete = {
+                                                viewModel.deleteTransaction(transaction.transaction)
+                                            },
+                                            onEdit = {
+                                                transactionToEdit = transaction.transaction
+                                                showTransactionDialog = true
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -476,6 +486,49 @@ private fun filterTransactionsBySearch(
             other = trimmedQuery,
             ignoreCase = true
         )
+    }
+}
+
+@Composable
+private fun EmptyTransactionsState(
+    hasTransactions: Boolean,
+    searchQuery: String,
+    selectedPeriod: DashboardPeriod
+) {
+    val title = when {
+        !hasTransactions -> "Транзакций пока нет"
+        searchQuery.isNotBlank() -> "Ничего не найдено"
+        else -> "Нет транзакций за период"
+    }
+
+    val message = when {
+        !hasTransactions -> "Добавьте первую операцию через кнопку +."
+        searchQuery.isNotBlank() -> "Попробуйте изменить текст поиска или выбрать другой период."
+        else -> "За период «${selectedPeriod.title}» операций не найдено."
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
