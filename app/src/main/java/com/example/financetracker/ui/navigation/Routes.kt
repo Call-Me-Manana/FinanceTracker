@@ -6,3 +6,9 @@ object Routes {
     const val CATEGORIES = "categories"
     const val GOALS = "goals"
 }
+
+val pages = listOf(
+    Routes.DASHBOARD,
+    Routes.ANALYTICS,
+    Routes.GOALS
+)

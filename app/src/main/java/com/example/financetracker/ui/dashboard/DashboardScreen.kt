@@ -119,7 +119,6 @@ fun DashboardScreen(
     var transactionToEdit by remember { mutableStateOf<Transaction?>(null) }
 
 
-
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {

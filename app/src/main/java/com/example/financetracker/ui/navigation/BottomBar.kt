@@ -1,14 +1,15 @@
 package com.example.financetracker.ui.navigation
 
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Flag
-import androidx.navigation.NavController
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 
 data class BottomItem(
     val route: String,
@@ -18,7 +19,7 @@ data class BottomItem(
 
 @Composable
 fun FinanceBottomBar(
-    navController: NavController,
+    onItemClick: (String) -> Unit,
     currentRoute: String?
 ) {
     val bottomBarItems = listOf(
@@ -34,9 +35,7 @@ fun FinanceBottomBar(
             NavigationBarItem(
                 selected = currentRoute == item.route,
                 onClick = {
-                    navController.navigate(item.route) {
-                        launchSingleTop = true
-                    }
+                    onItemClick(item.route)
                 },
                 icon = { Icon(item.icon, contentDescription = null) },
                 label = { Text(item.label) }

@@ -38,7 +38,8 @@ import java.util.Calendar
 
 @Composable
 fun CategoryScreen(
-    viewModel: FinanceViewModel
+    viewModel: FinanceViewModel,
+    modifier: Modifier = Modifier
 ) {
     val categories by viewModel.categories.collectAsState()
     val transactions by viewModel.transactions.collectAsState()
@@ -54,74 +55,80 @@ fun CategoryScreen(
         categories.filter { !it.isIncome }
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showDialog = true }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Scaffold(
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { showDialog = true }
+                ) {
+                    Text("+")
+                }
+            },
+        ) { padding ->
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        padding
+                    )
             ) {
-                Text("+")
-            }
-        },
-    ) { padding ->
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    padding
+                Text(
+                    "Расходы",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
                 )
-        ) {
 
-            Text(
-                "Расходы",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(16.dp)
-            )
+                CategoryGrid(
+                    categories = expenseCategories,
+                    transactions = transactions,
+                    onCategoryClick = { categoryToEdit = it }
+                )
 
-            CategoryGrid(
-                categories = expenseCategories,
-                transactions = transactions,
-                onCategoryClick = { categoryToEdit = it }
-            )
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Доходы",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
 
-            Text(
-                "Доходы",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(16.dp)
-            )
+                CategoryGrid(
+                    categories = incomeCategories,
+                    transactions = transactions,
+                    onCategoryClick = { categoryToEdit = it }
+                )
+            }
+        }
 
-            CategoryGrid(
-                categories = incomeCategories,
-                transactions = transactions,
-                onCategoryClick = { categoryToEdit = it }
+        if (showDialog) {
+            AddCategoryDialog(
+                onDismiss = { showDialog = false },
+                onSave = { category ->
+                    viewModel.addCategory(category)
+                    showDialog = false
+                }
             )
         }
-    }
 
-    if (showDialog) {
-        AddCategoryDialog(
-            onDismiss = { showDialog = false },
-            onSave = { category ->
-                viewModel.addCategory(category)
-                showDialog = false
-            }
-        )
-    }
-
-    categoryToEdit?.let { category ->
-        EditCategoryDialog(
-            category = category,
-            onDismiss = { categoryToEdit = null },
-            onSave = { updatedCategory ->
-                viewModel.updateCategory(
-                    updatedCategory
-                )
-                categoryToEdit = null
-            }
-        )
+        categoryToEdit?.let { category ->
+            EditCategoryDialog(
+                category = category,
+                onDismiss = { categoryToEdit = null },
+                onSave = { updatedCategory ->
+                    viewModel.updateCategory(
+                        updatedCategory
+                    )
+                    categoryToEdit = null
+                }
+            )
+        }
     }
 }
 
