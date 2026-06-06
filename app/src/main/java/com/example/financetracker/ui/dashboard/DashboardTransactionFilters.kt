@@ -1,10 +1,12 @@
 package com.example.financetracker.ui.dashboard
 
 import com.example.financetracker.data.TransactionWithCategory
+import com.example.financetracker.ui.dashboard.model.DashboardDateRange
 import com.example.financetracker.ui.dashboard.model.DashboardPeriod
 import com.example.financetracker.utils.getStartOfDay
 import java.util.Calendar
 
+private const val DAY_IN_MILLIS = 24 * 60 * 60 * 1000L
 fun filterTransactionsByPeriod(
     transactions: List<TransactionWithCategory>,
     period: DashboardPeriod
@@ -64,4 +66,23 @@ private fun getStartOfMonth(time: Long): Long {
     calendar.set(Calendar.SECOND, 0)
     calendar.set(Calendar.MILLISECOND, 0)
     return calendar.timeInMillis
+}
+
+fun filterTransactionsByDateRange(
+    transactions: List<TransactionWithCategory>,
+    dateRange: DashboardDateRange
+): List<TransactionWithCategory> {
+    val endOfDay = dateRange.endDateMillis?.let { endDate ->
+        endDate + DAY_IN_MILLIS - 1
+    }
+    return transactions.filter { item ->
+        val timestamp = item.transaction.timestamp
+
+        val afterStart = dateRange.startDateMillis == null ||
+                timestamp >= dateRange.startDateMillis
+
+        val beforeEnd = endOfDay == null || timestamp <= endOfDay
+
+        afterStart && beforeEnd
+    }
 }

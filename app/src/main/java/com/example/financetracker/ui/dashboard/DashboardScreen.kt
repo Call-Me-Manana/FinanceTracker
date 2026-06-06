@@ -24,13 +24,12 @@ import com.example.financetracker.CategoryViewModel
 import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.data.Transaction
 import com.example.financetracker.ui.dashboard.components.BalanceSummaryCard
-import com.example.financetracker.ui.dashboard.components.DashboardPeriodFilter
 import com.example.financetracker.ui.dashboard.components.DashboardSearchField
 import com.example.financetracker.ui.dashboard.components.DashboardStatsRow
 import com.example.financetracker.ui.dashboard.components.DashboardTransactionList
 import com.example.financetracker.ui.dashboard.components.EmptyTransactionsState
 import com.example.financetracker.ui.dashboard.dialogs.AddTransactionDialog
-import com.example.financetracker.ui.dashboard.model.DashboardPeriod
+import com.example.financetracker.ui.dashboard.model.DashboardDateRange
 import com.example.financetracker.utils.groupTransactionsByDay
 
 @Composable
@@ -41,20 +40,22 @@ fun DashboardScreen(
 ) {
     val transactions by viewModel.transactions.collectAsState()
 
-    var selectedPeriod by remember { mutableStateOf(DashboardPeriod.MONTH) }
+    var selectedDateRange by remember {
+        mutableStateOf(DashboardDateRange())
+    }
     var searchQuery by remember { mutableStateOf("") }
     var showTransactionDialog by remember { mutableStateOf(false) }
     var transactionToEdit by remember { mutableStateOf<Transaction?>(null) }
 
-    val periodTransactions = remember(transactions, selectedPeriod) {
-        filterTransactionsByPeriod(
+    val dateRangeTransactions = remember(transactions, selectedDateRange) {
+        filterTransactionsByDateRange(
             transactions = transactions,
-            period = selectedPeriod
+            dateRange = selectedDateRange
         )
     }
-    val filteredTransactions = remember(periodTransactions, searchQuery) {
+    val filteredTransactions = remember(dateRangeTransactions, searchQuery) {
         filterTransactionsBySearch(
-            transactions = periodTransactions,
+            transactions = dateRangeTransactions,
             query = searchQuery
         )
     }
@@ -81,10 +82,10 @@ fun DashboardScreen(
             .filter { !it.transaction.isIncome }
             .sumOf { it.transaction.amount }
     }
-    val dashboardStats = remember(filteredTransactions, selectedPeriod) {
+    val dashboardStats = remember(filteredTransactions, selectedDateRange) {
         DashboardStatsCalculator.calculate(
             transactions = filteredTransactions,
-            period = selectedPeriod
+            dateRange = selectedDateRange
         )
     }
 
@@ -112,10 +113,10 @@ fun DashboardScreen(
                 expense = periodExpense
             )
 
-            DashboardPeriodFilter(
-                selectedPeriod = selectedPeriod,
-                onPeriodSelected = { period ->
-                    selectedPeriod = period
+            DashboardDateRangeFilter(
+                dateRange = selectedDateRange,
+                onDateRangeChange = { newRange ->
+                    selectedDateRange = newRange
                 }
             )
 
@@ -138,7 +139,7 @@ fun DashboardScreen(
                 EmptyTransactionsState(
                     hasTransactions = transactions.isNotEmpty(),
                     searchQuery = searchQuery,
-                    selectedPeriod = selectedPeriod
+                    dateRange = selectedDateRange
                 )
             } else {
                 DashboardTransactionList(

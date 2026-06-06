@@ -11,13 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.financetracker.ui.dashboard.model.DashboardPeriod
+import com.example.financetracker.ui.dashboard.model.DashboardDateRange
 
 @Composable
 fun EmptyTransactionsState(
     hasTransactions: Boolean,
     searchQuery: String,
-    selectedPeriod: DashboardPeriod,
+    dateRange: DashboardDateRange,
     modifier: Modifier = Modifier
 ) {
     val title = when {
@@ -29,7 +29,7 @@ fun EmptyTransactionsState(
     val message = when {
         !hasTransactions -> "Добавьте первую операцию через кнопку +."
         searchQuery.isNotBlank() -> "Попробуйте изменить текст поиска или выбрать другой период."
-        else -> "За период «${selectedPeriod.title}» операций не найдено."
+        else -> "За выбранный период операций не найдено."
     }
 
     Surface(
