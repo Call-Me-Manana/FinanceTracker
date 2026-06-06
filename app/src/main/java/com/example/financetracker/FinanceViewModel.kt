@@ -89,6 +89,12 @@ class FinanceViewModel(
         }
     }
 
+    fun updateCategory(category: Category) {
+        viewModelScope.launch {
+            categoryRepository.updateCategory(category)
+        }
+    }
+
     fun updateTransaction(transaction: Transaction) {
         viewModelScope.launch {
             dao.update(transaction)

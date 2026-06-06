@@ -44,6 +44,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.data.Goal
+import com.example.financetracker.utils.cleanMoneyInput
+import com.example.financetracker.utils.toCleanMoneyString
 
 @Composable
 fun GoalsScreen(viewModel: FinanceViewModel) {
@@ -430,27 +432,4 @@ private fun MoneyTextField(
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
     )
-}
-
-private fun cleanMoneyInput(input: String): String {
-    return buildString {
-        var dotAlreadyUsed = false
-        input.forEach { char ->
-            when {
-                char.isDigit() -> append(char)
-                char == '.' && !dotAlreadyUsed -> {
-                    append(char)
-                    dotAlreadyUsed = true
-                }
-            }
-        }
-    }
-}
-
-private fun Double.toCleanMoneyString(): String {
-    return if (this % 1.0 == 0.0) {
-        this.toInt().toString()
-    } else {
-        this.toString()
-    }
 }

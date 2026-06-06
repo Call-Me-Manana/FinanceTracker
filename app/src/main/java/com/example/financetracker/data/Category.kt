@@ -12,5 +12,7 @@ data class Category(
 
     val icon: String,
 
-    val isIncome: Boolean
+    val isIncome: Boolean,
+
+    val monthlyBudget: Double? = null
 )

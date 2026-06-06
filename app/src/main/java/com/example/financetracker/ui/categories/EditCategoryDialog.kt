@@ -21,20 +21,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.financetracker.data.Category
 import com.example.financetracker.utils.cleanMoneyInput
+import com.example.financetracker.utils.toCleanMoneyString
 
 @Composable
-fun AddCategoryDialog(
+fun EditCategoryDialog(
+    category: Category,
     onDismiss: () -> Unit,
     onSave: (Category) -> Unit
 ) {
+    var name by remember { mutableStateOf(category.name) }
 
-    var name by remember { mutableStateOf("") }
+    var icon by remember { mutableStateOf(category.icon) }
 
-    var icon by remember { mutableStateOf("📁") }
+    var isIncome by remember { mutableStateOf(category.isIncome) }
 
-    var isIncome by remember { mutableStateOf(false) }
-
-    var monthlyBudget by remember { mutableStateOf("") }
+    var monthlyBudget by remember(category.id) {
+        mutableStateOf(
+            category.monthlyBudget?.toCleanMoneyString() ?: ""
+        )
+    }
 
     val emojis = listOf(
         "🍔", "🍕", "☕", "🛒", "🚕", "⛽",
@@ -43,11 +48,12 @@ fun AddCategoryDialog(
         "🏥", "📚", "👕", "🐶", "🚗", "🚌"
     )
 
+
     AlertDialog(
         onDismissRequest = onDismiss,
 
         title = {
-            Text("Новая категория")
+            Text("Редактировать категорию")
         },
 
         text = {

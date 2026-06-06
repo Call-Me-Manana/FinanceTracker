@@ -17,4 +17,8 @@ class CategoryRepository(
     ) {
         categoryDao.insert(category)
     }
+
+    suspend fun updateCategory(category: Category) {
+        categoryDao.update(category)
+    }
 }

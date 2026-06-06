@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -32,20 +31,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.financetracker.CategoryViewModel
 import com.example.financetracker.FinanceViewModel
 import com.example.financetracker.data.Category
 import com.example.financetracker.data.Transaction
+import com.example.financetracker.data.TransactionWithCategory
+import com.example.financetracker.ui.dashboard.model.DashboardStats
 import com.example.financetracker.ui.home.DayCard
 import com.example.financetracker.ui.home.SwipeTransactionRow
 import com.example.financetracker.utils.calculateDayTotal
+import com.example.financetracker.utils.getStartOfDay
 import com.example.financetracker.utils.groupTransactionsByDay
+import com.example.financetracker.utils.toCleanMoneyString
 import kotlinx.coroutines.launch
-import kotlin.collections.component1
-import kotlin.collections.component2
+
+enum class DashboardPeriod(
+    val title: String
+) {
+    TODAY("Сегодня"),
+    WEEK("Неделя"),
+    MONTH("Месяц"),
+    ALL("Все")
+}
 
 @Composable
 fun DashboardScreen(
@@ -54,14 +66,58 @@ fun DashboardScreen(
     navController: NavController
 ) {
     val transactions by viewModel.transactions.collectAsState()
-    val balance by viewModel.balance.collectAsState()
-    val income by viewModel.totalIncome.collectAsState()
-    val expense by viewModel.totalExpense.collectAsState()
 
-    val grouped = groupTransactionsByDay(transactions)
+    var selectedPeriod by remember { mutableStateOf(DashboardPeriod.MONTH) }
+
+    val periodTransactions = remember(transactions, selectedPeriod) {
+        filterTransactionsByPeriod(
+            transactions = transactions,
+            period = selectedPeriod
+        )
+    }
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredTransactions = remember(periodTransactions, searchQuery) {
+        filterTransactionsBySearch(
+            transactions = periodTransactions,
+            query = searchQuery
+        )
+    }
+
+    val grouped = groupTransactionsByDay(filteredTransactions)
+
+    val periodBalance = remember(filteredTransactions) {
+        filteredTransactions.sumOf { item ->
+            if (item.transaction.isIncome) {
+                item.transaction.amount
+            } else {
+                -item.transaction.amount
+            }
+        }
+    }
+
+    val dashboardStats = remember(filteredTransactions, selectedPeriod) {
+        DashboardStatsCalculator.calculate(
+            transactions = filteredTransactions,
+            period = selectedPeriod
+        )
+    }
+
+    val periodIncome = remember(filteredTransactions) {
+        filteredTransactions
+            .filter { it.transaction.isIncome }
+            .sumOf { it.transaction.amount }
+    }
+
+    val periodExpense = remember(filteredTransactions) {
+        filteredTransactions
+            .filter { !it.transaction.isIncome }
+            .sumOf { it.transaction.amount }
+    }
 
     var showTransactionDialog by remember { mutableStateOf(false) }
     var transactionToEdit by remember { mutableStateOf<Transaction?>(null) }
+
+
 
     Scaffold(
         floatingActionButton = {
@@ -100,7 +156,7 @@ fun DashboardScreen(
                     )
 
                     Text(
-                        "${"%.2f".format(balance)} ₽",
+                        "${"%.2f".format(periodBalance)} ₽",
                         style = MaterialTheme.typography.headlineLarge
                     )
 
@@ -110,11 +166,60 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("↑ ${income.toInt()} ₽")
-                        Text("↓ ${expense.toInt()} ₽")
+                        Text("↑ ${periodIncome.toInt()} ₽")
+                        Text("↓ ${periodExpense.toInt()} ₽")
                     }
                 }
             }
+
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = 8.dp,
+                    alignment = Alignment.CenterHorizontally
+                )
+            ) {
+                DashboardPeriod.entries.forEach { period ->
+                    FilterChip(
+                        selected = selectedPeriod == period,
+                        onClick = {
+                            selectedPeriod = period
+                        },
+                        label = {
+                            Text(period.title)
+                        }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+                },
+                label = {
+                    Text("Поиск")
+                },
+                singleLine = true,
+                shape = MaterialTheme.shapes.extraLarge
+
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            DashboardStatsRow(
+                stats = dashboardStats
+            )
+
+            Spacer(Modifier.height(12.dp))
 
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -312,10 +417,120 @@ private fun AddTransactionDialog(
     )
 }
 
-private fun Double.toCleanMoneyString(): String {
-    return if (this % 1.0 == 0.0) {
-        this.toInt().toString()
-    } else {
-        this.toString()
+private fun filterTransactionsByPeriod(
+    transactions: List<TransactionWithCategory>,
+    period: DashboardPeriod
+): List<TransactionWithCategory> {
+    val now = System.currentTimeMillis()
+
+    val startTime = when (period) {
+        DashboardPeriod.TODAY -> getStartOfDay(now)
+        DashboardPeriod.WEEK -> getStartOfWeek(now)
+        DashboardPeriod.MONTH -> getStartOfMonth(now)
+        DashboardPeriod.ALL -> Long.MIN_VALUE
+    }
+
+    return transactions.filter { item ->
+        item.transaction.timestamp >= startTime
+    }
+}
+
+private fun getStartOfWeek(time: Long): Long {
+    val calendar = java.util.Calendar.getInstance()
+    calendar.timeInMillis = time
+    calendar.firstDayOfWeek = java.util.Calendar.MONDAY
+    calendar.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY)
+    calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+    calendar.set(java.util.Calendar.MINUTE, 0)
+    calendar.set(java.util.Calendar.SECOND, 0)
+    calendar.set(java.util.Calendar.MILLISECOND, 0)
+    return calendar.timeInMillis
+}
+
+private fun getStartOfMonth(time: Long): Long {
+    val calendar = java.util.Calendar.getInstance()
+    calendar.timeInMillis = time
+    calendar.set(java.util.Calendar.DAY_OF_MONTH, 1)
+    calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+    calendar.set(java.util.Calendar.MINUTE, 0)
+    calendar.set(java.util.Calendar.SECOND, 0)
+    calendar.set(java.util.Calendar.MILLISECOND, 0)
+    return calendar.timeInMillis
+}
+
+private fun filterTransactionsBySearch(
+    transactions: List<TransactionWithCategory>,
+    query: String
+): List<TransactionWithCategory> {
+    val trimmedQuery = query.trim()
+
+    if (trimmedQuery.isBlank()) {
+        return transactions
+    }
+
+    return transactions.filter { item ->
+        item.transaction.title.contains(
+            other = trimmedQuery,
+            ignoreCase = true
+        ) || item.category.name.contains(
+            other = trimmedQuery,
+            ignoreCase = true
+        )
+    }
+}
+
+@Composable
+private fun DashboardStatsRow(
+    stats: DashboardStats
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        StatCard("Операций", stats.operationCount.toString(), modifier = Modifier.weight(1f))
+        StatCard(
+            title = "В день",
+            value = "${stats.averageDailyExpense.toInt()} ₽",
+            modifier = Modifier.weight(1f)
+        )
+        StatCard(
+            title = "Топ",
+            value = stats.topCategoryName ?: "Нет",
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun StatCard(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+
+        ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+
+            ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
