@@ -47,7 +47,8 @@ class FinanceViewModel(
         title: String,
         amount: Double,
         isIncome: Boolean,
-        categoryId: Int
+        categoryId: Int,
+        timestamp: Long = System.currentTimeMillis()
     ) {
         require(categoryId > 0) {
             "Category must be selected"
@@ -58,7 +59,8 @@ class FinanceViewModel(
                     title = title,
                     amount = amount,
                     isIncome = isIncome,
-                    categoryId = categoryId
+                    categoryId = categoryId,
+                    timestamp = timestamp
                 )
             )
         }

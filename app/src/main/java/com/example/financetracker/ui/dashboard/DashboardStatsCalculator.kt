@@ -1,6 +1,7 @@
 package com.example.financetracker.ui.dashboard
 
 import com.example.financetracker.data.TransactionWithCategory
+import com.example.financetracker.ui.dashboard.model.DashboardPeriod
 import com.example.financetracker.ui.dashboard.model.DashboardStats
 
 object DashboardStatsCalculator {
